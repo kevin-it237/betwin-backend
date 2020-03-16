@@ -98,5 +98,5 @@ io.on('connection', function (socket) {
 
 // Start the app
 server.listen(process.env.PORT || 5000, function() {
-    console.log("Server started on port " + PORT)
+    console.log("Server started")
 })
