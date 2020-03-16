@@ -97,7 +97,6 @@ io.on('connection', function (socket) {
 })
 
 // Start the app
-const PORT = 5000;
-server.listen(PORT, function() {
+server.listen(process.env.PORT || 5000, function() {
     console.log("Server started on port " + PORT)
 })
