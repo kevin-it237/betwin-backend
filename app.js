@@ -23,6 +23,7 @@ db.once('open', function() {
     console.log('Connected to mongodb');
 })
 require('dotenv').config();
+
 // App initialization
 const app = express();
 app.use(express.static(path.join(__dirname, 'build')));
@@ -34,7 +35,6 @@ app.use(session({
     saveUninitialized: true
 }))
 
-http.globalAgent.maxSockets = 1
 const server = http.createServer(app);
 
 app.use(morgan('dev'))
@@ -43,7 +43,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', rootUrl)
+    res.header("Access-Control-Allow-Origin", "*");
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-Type, Accept, Content-Type, Authorization')
     if (req.method === 'OPTIONS') {
         res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET')
@@ -78,7 +78,7 @@ app.use((error, req, res, next) => {
 
 
 // Init socket io
-var io = socketIo.listen(server, { wsEngine: 'ws' });
+var io = socketIo.listen(server);
 app.set('io', io)
 
 io.on('connection', function (socket) {
