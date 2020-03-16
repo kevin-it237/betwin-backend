@@ -1,0 +1,32 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Application for youths",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "keywords": [
+    "survey cameroun",
+    "sondage cameroun"
+  ],
+  "author": "kevin-it",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.0",
+    "global": "^4.4.0",
+    "mongoose": "^5.6.11",
+    "morgan": "^1.9.1",
+    "multer": "^1.4.2",
+    "nodemailer": "^6.3.0",
+    "nodemon": "^2.0.2",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4",
+    "socket.io": "^2.2.0"
+  }
+}
