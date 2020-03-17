@@ -1,13 +1,20 @@
 const express = require('express');
 const router = express.Router()
+const mongoose = require('mongoose')
 
 const Survey = require('../models/Survey');
 
 // Vote an survey
 /* :id => Survey ID */
-router.patch('/vote/:id', (req, res, next) => {
+router.patch('/:id/vote', (req, res, next) => {
+    const user = {
+        _id: mongoose.Types.ObjectId(),
+        location : req.body.location,
+        userAgent: req.body.userAgent,
+        cookie: req.body.cookie
+    }
     Survey.updateOne({ _id: req.params.id }, {
-        $set: { choices: req.body }
+        $push: { voters: user }
     })
     .exec()
     .then(survey => {
@@ -35,8 +42,23 @@ router.get('/', (req, res, next) => {
     })
 })
 
+// Get single survey voters
+router.get('/:id/voters', (req, res, next) => {
+    const id = req.params.id
+    Survey.findById(id).select('voters')
+    .exec()
+    .then(survey => {
+        return res.status(200).json({
+            survey: survey
+        })
+    })
+    .catch(err => {
+        return res.status(500).json({ error: err })
+    })
+})
+
 // Search surveys by  title
-router.get('/:query/search', (req, res, next) => {
+router.get('/:id', (req, res, next) => {
     const query = req.params.query
     Survey.find({ title: new RegExp(query, 'i'), validated: true })
     .exec()

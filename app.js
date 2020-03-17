@@ -7,7 +7,6 @@ const session = require('express-session')
 const http = require('http');
 const path = require('path');
 const socketIo = require("socket.io");
-const { rootUrl} = require('./config/rootUrl')
 
 // Routes
 const userSurveyRoutes = require('./api/routes/userSurveys');
