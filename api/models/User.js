@@ -5,6 +5,7 @@ const userSchema = mongoose.Schema({
     location : { type: Object, required: false },
     userAgent: { type: String, required: false },
     cookie: { type: String, required: false },
+    choice : { type: Object, required: false },
 });
 
 module.exports = userSchema;

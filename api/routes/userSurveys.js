@@ -9,22 +9,53 @@ const Survey = require('../models/Survey');
 router.patch('/:id/vote', (req, res, next) => {
     const user = {
         _id: mongoose.Types.ObjectId(),
-        location : req.body.location,
-        userAgent: req.body.userAgent,
-        cookie: req.body.cookie
+        location : req.body.user.location,
+        userAgent: req.body.user.userAgent,
+        cookie: req.body.user.cookie,
+        choice: req.body.choice
     }
-    Survey.updateOne({ _id: req.params.id }, {
-        $push: { voters: user }
-    })
+
+    // Update number of vote for each choice
+    Survey.findById(req.params.id).select("choices")
     .exec()
     .then(survey => {
-        return res.status(201).json({
-            survey: survey
+        const updateChoices = survey.choices.map(choice => {
+            if(choice._id == req.body.choice._id) {
+                let newChoice = choice;
+                newChoice.votes = choice.votes + 1;
+                return newChoice;
+            }
+            return choice;
         })
+        
+        // Get total count
+        Survey.findById(req.params.id).select("totalVotes")
+        .exec()
+        .then(survey => {
+            // Vote 
+            Survey.updateOne({ _id: req.params.id }, {
+                $push: { voters: user }, $set: {totalVotes: survey.totalVotes + 1, choices: updateChoices}
+            })
+            .exec()
+            .then(survey => {
+                return res.status(201).json({
+                    survey: survey
+                })
+            })
+            .catch(err => {
+                return res.status(500).json({ error: err })
+            })
+        })
+        .catch(err => {
+            return res.status(500).json({ error: err })
+        })
+
     })
     .catch(err => {
         return res.status(500).json({ error: err })
     })
+
+
 })
 
 
