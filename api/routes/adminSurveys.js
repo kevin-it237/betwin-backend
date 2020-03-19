@@ -1,126 +1,120 @@
 const express = require('express')
-const path = require("path");
 const router = express.Router()
 const mongoose = require('mongoose')
-const multer = require('multer')
+const Multer = require('multer');
+const {Storage} = require('@google-cloud/storage');
+const uploadImageToStorage = require('../utils/uploadImageToStorage')
 
 const Survey = require('../models/Survey');
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, './uploads/images')
-    },
-    filename: function (req, file, cb) {
-        cb(null, "survey-" + Date.now() + path.extname(file.originalname))
-    }
-})
+const storage = new Storage({
+    projectId: "survey-cmr",
+    keyFilename: "./config/survey-cmr-firebase-adminsdk-b931i-53e37c4384.json"
+});
+  
+const bucket = storage.bucket("survey-cmr.appspot.com");
 
-const fileFilter = (req, file, cb) => {
-    if (file.mimetype === 'image/jpeg' || 
-        file.mimetype === 'image/png' || 
-        file.mimetype === 'image/jpg' ) { 
-        cb(null, true)
-    } else {
-        cb(null, false)
-    }
-}
-
-const upload = multer({
-    storage: storage,
+const multer = Multer({
+    storage: Multer.memoryStorage(),
     limits: {
-        fileSize: 1024 * 1024 * 5
-    },
-    fileFilter: fileFilter 
-})
+      fileSize: 0.5 * 1024 * 1024 // no larger than 5mb, you can change as needed.
+    }
+});
+
+// const storage = multer.diskStorage({
+//     destination: function (req, file, cb) {
+//         cb(null, './uploads/images')
+//     },
+//     filename: function (req, file, cb) {
+//         cb(null, "survey-" + Date.now() + path.extname(file.originalname))
+//     }
+// })
+
+// const fileFilter = (req, file, cb) => {
+//     if (file.mimetype === 'image/jpeg' || 
+//         file.mimetype === 'image/png' || 
+//         file.mimetype === 'image/jpg' ) { 
+//         cb(null, true)
+//     } else {
+//         cb(null, false)
+//     }
+// }
+
+// const upload = multer({
+//     storage: storage,
+//     limits: {
+//         fileSize: 1024 * 1024 * 1
+//     },
+//     fileFilter: fileFilter 
+// })
+
+router.post('/upload', multer.single('file'), (req, res) => {
+    console.log('Upload Image');
+  
+    let file = req.file;
+    if (file) {
+      uploadImageToStorage(file, bucket).then((response) => {
+            console.log(response)
+            res.status(200).send({
+            status: 'success',
+            response: response
+            });
+      }).catch((error) => {
+        console.error(error);
+      });
+    }
+});
 
 // Survey creation
-router.post('/new', upload.any(), (req, res, next) => {
-    let bannerImage = '';
-    // Get banner image path
-    req.files.forEach(file => {
-        if (file.fieldname === 'bannerImage') {
-            bannerImage = file.path;
-        }
-    })
-    // Get choices image path
-    const images = req.files.filter(el => el.fieldname === "image");
-    const filesPath = images.map(file => file.path);
+router.post('/new', multer.any(), (req, res, next) => {
+    var promises = [];
 
-    const choices = JSON.parse(req.body.choices);
-    var formattedChoices = [];
-    choices.forEach((choice, i) => {
-        const newChoice = {
-            _id: mongoose.Types.ObjectId(),
-            title: choice.title,
-            image: filesPath[i]
-        }
-        formattedChoices.push(newChoice);
+    req.files.forEach(function(file) {
+        promises.push(
+            uploadImageToStorage(file, bucket)
+            .then((url) => {
+                return url;
+            }).catch((error) => {
+                console.error(error);
+            })
+        );
     });
-    const survey = new Survey({
-        _id: mongoose.Types.ObjectId(),
-        choices: formattedChoices,
-        image: bannerImage,
-        createdAt: new Date()
-    })
-    survey.save()
-    .then(survey => {
-        res.status(201).json({
-            message: 'Survey saved successfully',
-            survey: survey
-        })
-    })
-    .catch(err => {
-        console.log({err})
-        res.status(500).json({ error: err })
-    })
-})
 
-// Update survey
-router.patch('/:id', upload.any(), (req, res, next) => {
-    let request = {
-        title: req.body.title,
-        place: req.body.place,
-        youtubeVideoLink: req.body.youtubeVideoLink,
-        description: req.body.description,
-        date: req.body.date,
-        category: req.body.category,
-        otherInfos: req.body.otherInfos,
-        mapLink: req.body.mapLink,
-        tags: req.body.tags,
-    };
-    if(req.files) {
-        // Vérify if there is new images
-        req.files.forEach(file => {
-            if (file.fieldname === 'images') {
-                const images = req.files.filter(el => el.fieldname === "images");
-                const filesPath = images.map(file => file.path)
-                request = { ...request, images: filesPath, image: images[0].path }
-                return;
+    // Upload all images. Failed if one image failed uploading
+    Promise.all(promises).then(function(files) {
+        const bannerImage =  files[0];
+        const choicesImages = files.slice(1, files.length);
+
+        const choices = JSON.parse(req.body.choices);
+        var formattedChoices = [];
+        choices.forEach((choice, i) => {
+            const newChoice = {
+                _id: mongoose.Types.ObjectId(),
+                title: choice.title,
+                image: choicesImages[i]
             }
+            formattedChoices.push(newChoice);
+        });
+        const survey = new Survey({
+            _id: mongoose.Types.ObjectId(),
+            choices: formattedChoices,
+            image: bannerImage,
+            createdAt: new Date()
         })
+        survey.save()
+        .then(survey => {
+            res.status(201).json({
+                message: 'Survey saved successfully',
+                survey: survey
+            })
+        })
+        .catch(err => {
+            console.log({err})
+            res.status(500).json({ error: err })
+        })
+    });
 
-        // Vérify if there is a new video
-        req.files.forEach(file => {
-            if (file.fieldname === 'surveyVideo') {
-                request = { ...request, video: file.path }
-                return;
-            }
-        })
-    }
-    Survey.updateOne({ _id: req.params.id }, {
-        $set: request
-    })
-    .exec()
-    .then(survey => {
-        return res.status(201).json({
-            survey: survey
-        })
-    })
-    .catch(err => {
-        return res.status(500).json({ error: err })
-    })
 })
-
 
 // Delete survey
 router.delete('/:id', (req, res, next) => {

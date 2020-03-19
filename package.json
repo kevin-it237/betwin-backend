@@ -14,11 +14,13 @@
   "author": "kevin-it",
   "license": "ISC",
   "dependencies": {
+    "@google-cloud/storage": "^4.6.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-session": "^1.17.0",
+    "firebase": "^7.11.0",
     "global": "^4.4.0",
     "mongoose": "^5.6.11",
     "morgan": "^1.9.1",
@@ -27,6 +29,7 @@
     "nodemon": "^2.0.2",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
-    "socket.io": "^2.2.0"
+    "socket.io": "^2.2.0",
+    "uuid-v4": "^0.1.0"
   }
 }
