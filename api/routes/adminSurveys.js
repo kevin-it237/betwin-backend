@@ -3,7 +3,8 @@ const router = express.Router()
 const mongoose = require('mongoose')
 const Multer = require('multer');
 const {Storage} = require('@google-cloud/storage');
-const uploadImageToStorage = require('../utils/uploadImageToStorage')
+const uploadImageToStorage = require('../utils/uploadImageToStorage');
+const sendNotification = require('../utils/sendNotifications');
 
 const Survey = require('../models/Survey');
 
@@ -17,37 +18,11 @@ const bucket = storage.bucket("survey-cmr.appspot.com");
 const multer = Multer({
     storage: Multer.memoryStorage(),
     limits: {
-      fileSize: 0.5 * 1024 * 1024 // no larger than 5mb, you can change as needed.
+      fileSize: 0.5 * 1024 * 1024 // no larger than 0.5mb, you can change as needed.
     }
 });
 
-// const storage = multer.diskStorage({
-//     destination: function (req, file, cb) {
-//         cb(null, './uploads/images')
-//     },
-//     filename: function (req, file, cb) {
-//         cb(null, "survey-" + Date.now() + path.extname(file.originalname))
-//     }
-// })
-
-// const fileFilter = (req, file, cb) => {
-//     if (file.mimetype === 'image/jpeg' || 
-//         file.mimetype === 'image/png' || 
-//         file.mimetype === 'image/jpg' ) { 
-//         cb(null, true)
-//     } else {
-//         cb(null, false)
-//     }
-// }
-
-// const upload = multer({
-//     storage: storage,
-//     limits: {
-//         fileSize: 1024 * 1024 * 1
-//     },
-//     fileFilter: fileFilter 
-// })
-
+// UPload single image
 router.post('/upload', multer.single('file'), (req, res) => {
     console.log('Upload Image');
   
@@ -80,7 +55,7 @@ router.post('/new', multer.any(), (req, res, next) => {
         );
     });
 
-    // Upload all images. Failed if one image failed uploading
+    //Upload all images. Failed if one image failed uploading
     Promise.all(promises).then(function(files) {
         const bannerImage =  files[0];
         const choicesImages = files.slice(1, files.length);
@@ -106,7 +81,9 @@ router.post('/new', multer.any(), (req, res, next) => {
             res.status(201).json({
                 message: 'Survey saved successfully',
                 survey: survey
-            })
+            });
+            // Send Push Notification
+            sendNotification('JOJO', choices.map(choice => choice.title).join(","))
         })
         .catch(err => {
             console.log({err})

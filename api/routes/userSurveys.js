@@ -2,6 +2,15 @@ const express = require('express');
 const router = express.Router()
 const mongoose = require('mongoose')
 
+var admin = require("firebase-admin");
+
+var serviceAccount = require("../../config/survey-cmr-firebase-adminsdk-b931i-53e37c4384.json");
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "https://survey-cmr.firebaseio.com"
+});
+
 const Survey = require('../models/Survey');
 
 // Vote an survey
@@ -88,6 +97,23 @@ router.get('/:id/voters', (req, res, next) => {
     })
 })
 
+
+// Send FCM token
+router.post('/setfcmtoken', (req, res, next) => {
+    const token = req.body.token;
+    const topic = "survey";
+    admin.messaging().subscribeToTopic(token, topic)
+    .then(function(response) {
+        return res.status(200).json({
+            response: response
+        })
+    })
+    .catch(function(error) {
+        console.log('Error subscribing to topic:', error);
+        return res.status(500).json({ error: error })
+    });
+})
+
 // Search surveys by  title
 router.get('/:id', (req, res, next) => {
     const query = req.params.query
@@ -117,5 +143,7 @@ router.get('/4', (req, res, next) => {
         return res.status(500).json({ error: err })
     })
 })
+
+
 
 module.exports = router;
