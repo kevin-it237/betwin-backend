@@ -11,6 +11,7 @@ const SurveyChoice = mongoose.Schema({
 
 const surveySchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
+    surveyTitle  : { type: String, required: false },
     image  : { type: String, required: false },
     choices: [SurveyChoice],
     voters: [User],
