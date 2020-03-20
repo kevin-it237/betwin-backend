@@ -83,7 +83,7 @@ router.post('/new', multer.any(), (req, res, next) => {
                 survey: survey
             });
             // Send Push Notification
-            sendNotification('JOJO', choices.map(choice => choice.title).join(","))
+            sendNotification('JOJO', choices.map(choice => choice.title).join(" ,"))
         })
         .catch(err => {
             console.log({err})

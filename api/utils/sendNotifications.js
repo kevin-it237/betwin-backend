@@ -8,6 +8,8 @@ module.exports = function uploadImageToStorage(title, body) {
             "message": "New Survey Added",
             "icon": "https://survey-cmr.cf/favicon.png"
         },
+        "icon": "https://survey-cmr.cf/favicon.png",
+        "image": "https://survey-cmr.cf/favicon.png",
         "topic": "survey",
         "notification": {
             "title": title,
