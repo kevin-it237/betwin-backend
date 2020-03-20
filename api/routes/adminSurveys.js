@@ -84,7 +84,7 @@ router.post('/new', multer.any(), (req, res, next) => {
                 survey: survey
             });
             // Send Push Notification
-            sendNotification(req.body.surveyTitle, choices.map(choice => choice.title).join(", "))
+            sendNotification(req.body.surveyTitle, "Faites votre choix entre "+ choices.map(choice => choice.title).join(", "))
         })
         .catch(err => {
             console.log({err})
