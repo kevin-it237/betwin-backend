@@ -94,7 +94,6 @@ io.on('connection', function (socket) {
 
     socket.on("disconnect", () => console.log("Client disconnected"));
 })
-
 // Start the app
 server.listen(process.env.PORT || 5000, function() {
     console.log("Server started")
