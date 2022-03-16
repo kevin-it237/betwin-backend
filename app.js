@@ -6,12 +6,12 @@ const morgan = require('morgan');
 const session = require('express-session')
 const http = require('http');
 const path = require('path');
-const socketIo = require("socket.io");
 
 // Routes
-const userSurveyRoutes = require('./api/routes/userSurveys');
-const adminSurveyRoutes = require('./api/routes/adminSurveys');
+const tips = require('./api/routes/tips');
+const admin = require('./api/routes/admin');
 const emailsRoutes = require('./api/routes/emails');
+const auth = require('./api/routes/auth');
 
 // Connect to db
 mongoose.connect(config.database, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -52,8 +52,9 @@ app.use((req, res, next) => {
 })
 
 /* App Routes */
-app.use('/api/survey', userSurveyRoutes);
-app.use('/api/survey', adminSurveyRoutes);
+app.use('/api/auth', auth);
+app.use('/api/tips', tips);
+app.use('/api/admin', admin);
 app.use('/api/email', emailsRoutes); 
 
 app.get('/*', function (req, res) {
@@ -75,25 +76,6 @@ app.use((error, req, res, next) => {
     })
 })
 
-
-// Init socket io
-var io = socketIo.listen(server);
-app.set('io', io)
-
-io.on('connection', function (socket) {
-    // let client = socket.request._query
-    console.log("un client vient de se connecter");
-    
-    // Notification for recommandation
-    socket.on('new notification', function (data) {
-        io.emit('display notification',  data)
-    })
-    socket.on('new anounce notification', function (data) {
-        socket.broadcast.emit('display anounce notification',  data)
-    })
-
-    socket.on("disconnect", () => console.log("Client disconnected"));
-})
 // Start the app
 server.listen(process.env.PORT || 5000, function() {
     console.log("Server started")
