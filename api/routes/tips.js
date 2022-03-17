@@ -1,14 +1,15 @@
 const express = require("express");
 const router = express.Router();
-const { authJwt } = require("../middlewares/index")
+const { authJwt } = require("../middlewares/index");
 const Event = require("../models/Event");
 
 // Get today tips
 router.get("/today", authJwt.verifyToken, (req, res, next) => {
   const date = req.query.date;
-  if(!date) return res.status(403).json({
-    message: "Date is missing on query paramettrs",
-  });
+  if (!date)
+    return res.status(403).json({
+      message: "Date is missing on query paramettrs",
+    });
 
   Event.find({ eventType: "normal", date })
     .exec()
@@ -31,9 +32,10 @@ router.get("/today", authJwt.verifyToken, (req, res, next) => {
 // Get combo tips
 router.get("/combo", authJwt.verifyToken, (req, res, next) => {
   const date = req.query.date;
-  if(!date) return res.status(403).json({
-    message: "Date is missing on query parameters",
-  });
+  if (!date)
+    return res.status(403).json({
+      message: "Date is missing on query parameters",
+    });
 
   Event.find({ eventType: "combo", date })
     .exec()
@@ -56,12 +58,13 @@ router.get("/combo", authJwt.verifyToken, (req, res, next) => {
 // Get history tips
 router.get("/history", authJwt.verifyToken, (req, res, next) => {
   const date = req.query.date;
-  if(!date) return res.status(403).json({
-    message: "Date is missing on query parameters",
-  });
+  if (!date)
+    return res.status(403).json({
+      message: "Date is missing on query parameters",
+    });
 
-  Event.find({ date: { $ne: date } })
-    .sort( { date: -1 } )
+  Event.find({ date: { $ne: date }, pending: true })
+    .sort({ date: -1 })
     .limit(10)
     .exec()
     .then((comboTips) => {

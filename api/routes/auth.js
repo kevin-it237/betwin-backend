@@ -11,11 +11,11 @@ router.get("/get-token", (req, res, next) => {
     });
 
     const accessToken = jwt.sign({ cookie }, process.env.SESSION_SECRET, {
-        expiresIn: 86400 * 7 // 7 days
+        expiresIn: 86400 * 1  // 1 DAY
     });
 
     return res.status(200).json({
-        accessToken
+        data: { accessToken }
     })
 });
 
