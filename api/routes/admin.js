@@ -14,10 +14,9 @@ router.post("/events", (req, res, next) => {
   const prediction = req.body.prediction;
   const competition = req.body.competition;
   const date = req.body.date;
-  const result = req.body.result;
-  const pending = req.body.pending;
+  const status = req.body.status;
 
-  if (!eventType || (eventType !== "normal" && eventType !== "combo"))
+  if (!["normal", "combo"].includes(eventType))
     return res.status(403).send({
       message: "Event type should be 'normal' or 'combo'",
     });
@@ -57,14 +56,9 @@ router.post("/events", (req, res, next) => {
       message: "date field is missing",
     });
 
-  if (!result || !["failed", "win"].includes(result))
+  if (!status || !["failed", "win", "pending"].includes(status))
     return res.status(422).send({
-      message: "result field values should be 'failed' | 'win'",
-    });
-
-  if (!pending)
-    return res.status(422).send({
-      message: "pending field is missing",
+      message: "status field values should be 'failed' | 'win'",
     });
 
   const event = new Event({
@@ -88,8 +82,7 @@ router.post("/events", (req, res, next) => {
       name: competition.name,
     },
     date: date,
-    result: result,
-    pending: pending,
+    status: status,
     eventType,
     createdAt: new Date().toISOString(),
   });

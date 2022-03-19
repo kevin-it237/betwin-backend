@@ -63,7 +63,7 @@ router.get("/history", authJwt.verifyToken, (req, res, next) => {
       message: "Date is missing on query parameters",
     });
 
-  Event.find({ date: { $ne: date }, pending: true })
+  Event.find({ date: { $ne: date }, status: { $ne: "pending" } })
     .sort({ date: -1 })
     .limit(10)
     .exec()

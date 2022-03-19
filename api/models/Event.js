@@ -20,8 +20,7 @@ const eventsSchema = mongoose.Schema({
         logo  : { type: String, required: false },
     },
     date: { type: String, required: true }, // Tip for which day, will help for filter YYYY-MM-DD
-    result: { type: String, required: true }, // win / failed
-    pending: { type: Boolean, required: true },
+    status: { type: String, required: true }, // win / failed // pending
     eventType: { type: String, required: true }, // normal or combo
     updatedAt: { type: Date, required: false },
     createdAt: { type: Date, required: false }
