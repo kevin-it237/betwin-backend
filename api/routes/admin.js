@@ -4,6 +4,34 @@ const mongoose = require("mongoose");
 
 const Event = require("../models/Event");
 
+// Get history tips
+router.get("/events/history", (req, res, next) => {
+  const date = req.query.date;
+  if (!date)
+    return res.status(403).json({
+      message: "Date is missing on query parameters",
+    });
+
+  Event.find({ date: { $ne: date } })
+    .sort({ date: -1 })
+    .limit(30)
+    .exec()
+    .then((events) => {
+      if (events.length === 0) {
+        return res.status(404).json({
+          message: "Combo tips not Found",
+        });
+      }
+      return res.status(200).json({
+        message: "Past events fetched successfully",
+        data: events,
+      });
+    })
+    .catch((err) => {
+      return res.status(500).json({ error: err });
+    });
+});
+
 // Event creation
 router.post("/events", (req, res, next) => {
   const eventType = req.body.eventType;

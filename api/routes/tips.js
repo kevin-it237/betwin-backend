@@ -67,15 +67,15 @@ router.get("/history", authJwt.verifyToken, (req, res, next) => {
     .sort({ date: -1 })
     .limit(10)
     .exec()
-    .then((comboTips) => {
-      if (comboTips.length === 0) {
+    .then((events) => {
+      if (events.length === 0) {
         return res.status(404).json({
-          message: "Combo tips not Found",
+          message: "Past events not Found",
         });
       }
       return res.status(200).json({
-        message: "Combo tips fetched successfully",
-        data: comboTips,
+        message: "Past events fetched successfully",
+        data: events,
       });
     })
     .catch((err) => {
