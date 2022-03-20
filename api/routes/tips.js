@@ -83,21 +83,4 @@ router.get("/history", authJwt.verifyToken, (req, res, next) => {
     });
 });
 
-// Delete an event
-router.delete('/:id', (req, res, next) => {
-  const id = req.params.id
-  Event.deleteOne({ _id: id })
-      .exec()
-      .then(events => {
-          return res.status(200).json({
-              message: "Event deleted successfully",
-              data: events
-          })
-      })
-      .catch(err => {
-        console.log(err)
-          return res.status(500).json({ error: err })
-      })
-})
-
 module.exports = router;
