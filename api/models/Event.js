@@ -20,6 +20,10 @@ const EventSchema = mongoose.Schema({
         logo  : { type: String, required: false },
         country: { type: String, required: true }, // country of the league
     },
+    score: {
+        home  : { type: String, required: false },
+        away  : { type: String, required: false },
+    },
     date: { type: String, required: true }, // Tip for which day, will help for filter YYYY-MM-DD
     time: { type: String, required: true }, // ISO string date
     status: { type: String, required: true }, // win / failed // pending
