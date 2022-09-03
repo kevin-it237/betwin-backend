@@ -43,7 +43,6 @@ router.post("/events", (req, res, next) => {
   const competition = req.body.competition;
   const date = req.body.date;
   const status = req.body.status;
-  const country = req.body.country;
   const time = req.body.time;
 
   if (!["normal", "combo", "coupon"].includes(eventType))
@@ -86,11 +85,6 @@ router.post("/events", (req, res, next) => {
       message: "date field is missing",
     });
 
-  if (!country)
-    return res.status(422).send({
-      message: "country field is missing",
-    });
-
   if (!time)
     return res.status(422).send({
       message: "time field is missing",
@@ -120,12 +114,12 @@ router.post("/events", (req, res, next) => {
     competition: {
       logo: competition.logo,
       name: competition.name,
+      country: competition.country,
     },
     date: date,
     status: status,
     eventType,
     createdAt: new Date().toISOString(),
-    country,
     time
   });
   event
@@ -154,7 +148,6 @@ router.put('/events/:id', (req, res, next) => {
   const competition = req.body.competition;
   const date = req.body.date;
   const status = req.body.status;
-  const country = req.body.country;
   const time = req.body.time;
 
   if (!["normal", "combo"].includes(eventType))
@@ -220,11 +213,11 @@ router.put('/events/:id', (req, res, next) => {
     competition: {
       logo: competition.logo,
       name: competition.name,
+      country: competition.country,
     },
     date: date,
     status: status,
     eventType,
-    country,
     time
   }
 

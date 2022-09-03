@@ -18,10 +18,10 @@ const EventSchema = mongoose.Schema({
     competition: {
         name  : { type: String, required: true },
         logo  : { type: String, required: false },
+        country: { type: String, required: true }, // country of the league
     },
     date: { type: String, required: true }, // Tip for which day, will help for filter YYYY-MM-DD
     time: { type: String, required: true }, // ISO string date
-    country: { type: String, required: true }, // country of the league
     status: { type: String, required: true }, // win / failed // pending
     eventType: { type: String, required: true }, // normal | combo | coupon
     updatedAt: { type: Date, required: false },
