@@ -43,10 +43,12 @@ router.post("/events", (req, res, next) => {
   const competition = req.body.competition;
   const date = req.body.date;
   const status = req.body.status;
+  const country = req.body.country;
+  const time = req.body.time;
 
-  if (!["normal", "combo"].includes(eventType))
+  if (!["normal", "combo", "coupon"].includes(eventType))
     return res.status(403).send({
-      message: "Event type should be 'normal' or 'combo'",
+      message: "Event type should be 'normal' or 'combo' or 'coupon'",
     });
 
   if (!home || !home.name)
@@ -84,6 +86,16 @@ router.post("/events", (req, res, next) => {
       message: "date field is missing",
     });
 
+  if (!country)
+    return res.status(422).send({
+      message: "country field is missing",
+    });
+
+  if (!time)
+    return res.status(422).send({
+      message: "time field is missing",
+    });
+
   if (!status || !["failed", "win", "pending"].includes(status))
     return res.status(422).send({
       message: "status field values should be 'failed' | 'win'",
@@ -113,6 +125,8 @@ router.post("/events", (req, res, next) => {
     status: status,
     eventType,
     createdAt: new Date().toISOString(),
+    country,
+    time
   });
   event
     .save()
@@ -140,6 +154,8 @@ router.put('/events/:id', (req, res, next) => {
   const competition = req.body.competition;
   const date = req.body.date;
   const status = req.body.status;
+  const country = req.body.country;
+  const time = req.body.time;
 
   if (!["normal", "combo"].includes(eventType))
     return res.status(403).send({
@@ -208,6 +224,8 @@ router.put('/events/:id', (req, res, next) => {
     date: date,
     status: status,
     eventType,
+    country,
+    time
   }
 
   Event.updateOne({ _id: id }, event)

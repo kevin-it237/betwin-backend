@@ -5,7 +5,7 @@ const Team = mongoose.Schema({
     name: { type: String, required: true },
 });
 
-const eventsSchema = mongoose.Schema({
+const EventSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     home: Team,
     away: Team,
@@ -20,10 +20,14 @@ const eventsSchema = mongoose.Schema({
         logo  : { type: String, required: false },
     },
     date: { type: String, required: true }, // Tip for which day, will help for filter YYYY-MM-DD
+    time: { type: String, required: true }, // ISO string date
+    country: { type: String, required: true }, // country of the league
     status: { type: String, required: true }, // win / failed // pending
-    eventType: { type: String, required: true }, // normal or combo
+    eventType: { type: String, required: true }, // normal | combo | coupon
     updatedAt: { type: Date, required: false },
     createdAt: { type: Date, required: false }
-})
+});
 
-module.exports = mongoose.model('Event', eventsSchema);
+const Event = mongoose.model('Event', EventSchema);
+module.exports = Event;
+
