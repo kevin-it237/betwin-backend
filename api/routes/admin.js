@@ -149,8 +149,9 @@ router.put('/events/:id', (req, res, next) => {
   const date = req.body.date;
   const status = req.body.status;
   const time = req.body.time;
+  const score = req.body.score;
 
-  if (!["normal", "combo"].includes(eventType))
+  if (!["normal", "combo", "coupon"].includes(eventType))
     return res.status(403).send({
       message: "Event type should be 'normal' or 'combo'",
     });
@@ -218,7 +219,8 @@ router.put('/events/:id', (req, res, next) => {
     date: date,
     status: status,
     eventType,
-    time
+    time,
+    score
   }
 
   Event.updateOne({ _id: id }, event)
