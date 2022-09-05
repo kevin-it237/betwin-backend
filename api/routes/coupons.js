@@ -8,12 +8,16 @@ const mongoose = require("mongoose");
 // Get coupons by dates
 router.get("/", authJwt.verifyToken, (req, res, next) => {
   const date = req.query.date;
+  const isLive = req.query.isLive;
   if (!date)
     return res.status(403).json({
       message: "Date is missing on query paramettrs",
     });
+  
+  let condition = { date };
+  if(isLive) condition = { ...condition, isLive };
 
-  Coupon.find({ date })
+  Coupon.find(condition)
     .exec()
     .then((coupons) => {
       if (coupons.length === 0) {
