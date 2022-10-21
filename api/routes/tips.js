@@ -55,6 +55,32 @@ router.get("/combo", authJwt.verifyToken, (req, res, next) => {
     });
 });
 
+// Get coupons tips
+router.get("/coupon", authJwt.verifyToken, (req, res, next) => {
+  const date = req.query.date;
+  if (!date)
+    return res.status(403).json({
+      message: "Date is missing on query paramettrs",
+    });
+
+  Event.find({ eventType: "coupon", date })
+    .exec()
+    .then((todayCoupons) => {
+      if (todayCoupons.length === 0) {
+        return res.status(404).json({
+          message: "Today coupons tips not Found",
+        });
+      }
+      return res.status(200).json({
+        message: "Today coupons fetched successfully",
+        data: todayCoupons,
+      });
+    })
+    .catch((err) => {
+      return res.status(500).json({ error: err });
+    });
+});
+
 // Get history tips
 router.get("/history", authJwt.verifyToken, (req, res, next) => {
   const date = req.query.date;
