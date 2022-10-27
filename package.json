@@ -1,11 +1,12 @@
 {
   "name": "betwin-backend",
   "version": "1.0.0",
-  "description": "Soccer preduction",
+  "description": "Soccer prediction",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "keywords": [
     "betwin prediction"

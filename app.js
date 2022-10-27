@@ -1,9 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const config = require('./config/database');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const session = require('express-session')
+const config = require('./config/database');
 const http = require('http');
 const path = require('path');
 
@@ -12,6 +12,9 @@ const tips = require('./api/routes/tips');
 const admin = require('./api/routes/admin');
 const emailsRoutes = require('./api/routes/emails');
 const auth = require('./api/routes/auth');
+const coupons = require('./api/routes/coupons');
+
+require('dotenv').config();
 
 // Connect to db
 mongoose.connect(config.database, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -21,7 +24,6 @@ db.on('error', console.error.bind(console, 'connection error'));
 db.once('open', function() {
     console.log('Connected to mongodb');
 })
-require('dotenv').config();
 
 // App initialization
 const app = express();
@@ -55,6 +57,7 @@ app.use((req, res, next) => {
 app.use('/api/auth', auth);
 app.use('/api/tips', tips);
 app.use('/api/admin', admin);
+app.use('/api/coupons', coupons);
 app.use('/api/email', emailsRoutes); 
 
 app.get('/*', function (req, res) {
