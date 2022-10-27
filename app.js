@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const session = require('express-session')
+const config = require('./config/database');
 const http = require('http');
 const path = require('path');
 
@@ -16,7 +17,7 @@ const coupons = require('./api/routes/coupons');
 require('dotenv').config();
 
 // Connect to db
-mongoose.connect(process.env.DATABASE_URL, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(config.database, { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.Promise = global.Promise
 let db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error'));
