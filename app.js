@@ -1,6 +1,5 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const config = require('./config/database');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const session = require('express-session')
@@ -14,15 +13,16 @@ const emailsRoutes = require('./api/routes/emails');
 const auth = require('./api/routes/auth');
 const coupons = require('./api/routes/coupons');
 
+require('dotenv').config();
+
 // Connect to db
-mongoose.connect(config.database, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(process.env.DATABASE_URL, { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.Promise = global.Promise
 let db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error'));
 db.once('open', function() {
     console.log('Connected to mongodb');
 })
-require('dotenv').config();
 
 // App initialization
 const app = express();
