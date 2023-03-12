@@ -45,7 +45,7 @@ router.post("/events", (req, res, next) => {
   const status = req.body.status;
   const time = req.body.time;
 
-  if (!["normal", "combo", "coupon"].includes(eventType))
+  if (!["normal", "combo", "coupon", "risk"].includes(eventType))
     return res.status(403).send({
       message: "Event type should be 'normal' or 'combo' or 'coupon'",
     });
