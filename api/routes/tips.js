@@ -55,6 +55,33 @@ router.get("/combo", authJwt.verifyToken, (req, res, next) => {
     });
 });
 
+
+// Get combo tips
+router.get("/risk", authJwt.verifyToken, (req, res, next) => {
+  const date = req.query.date;
+  if (!date)
+    return res.status(403).json({
+      message: "Date is missing on query parameters",
+    });
+
+  Event.find({ eventType: "risk", date })
+    .exec()
+    .then((riskTips) => {
+      if (riskTips.length === 0) {
+        return res.status(404).json({
+          message: "Risk tips not Found",
+        });
+      }
+      return res.status(200).json({
+        message: "Risk tips fetched successfully",
+        data: riskTips,
+      });
+    })
+    .catch((err) => {
+      return res.status(500).json({ error: err });
+    });
+});
+
 // Get coupons tips
 router.get("/coupon", authJwt.verifyToken, (req, res, next) => {
   const date = req.query.date;
