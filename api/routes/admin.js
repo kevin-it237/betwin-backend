@@ -1,8 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
+const admin = require("firebase-admin");
 
 const Event = require("../models/Event");
+const User = require("../models/User");
 
 // Get history tips
 router.get("/events/history", (req, res, next) => {
@@ -120,7 +122,7 @@ router.post("/events", (req, res, next) => {
     status: status,
     eventType,
     createdAt: new Date().toISOString(),
-    time
+    time,
   });
   event
     .save()
@@ -131,13 +133,12 @@ router.post("/events", (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log({ err });
       res.status(500).json(err);
     });
 });
 
 // Update event
-router.put('/events/:id', (req, res, next) => {
+router.put("/events/:id", (req, res, next) => {
   const id = req.params.id;
   const eventType = req.body.eventType;
   const home = req.body.home;
@@ -220,37 +221,119 @@ router.put('/events/:id', (req, res, next) => {
     status: status,
     eventType,
     time,
-    score
-  }
+    score,
+  };
 
   Event.updateOne({ _id: id }, event)
-  .exec()
-  .then((event) => {
-    return res.status(200).json({
-      message: "Event updated successfully",
-      data: event,
+    .exec()
+    .then((event) => {
+      return res.status(200).json({
+        message: "Event updated successfully",
+        data: event,
+      });
+    })
+    .catch((err) => {
+      return res.status(500).json({ error: err });
     });
-  })
-  .catch((err) => {
-    return res.status(500).json({ error: err });
-  });
 });
 
 // Delete an event
-router.delete('/events/:id', (req, res, next) => {
-  const id = req.params.id
+router.delete("/events/:id", (req, res, next) => {
+  const id = req.params.id;
   Event.deleteOne({ _id: id })
-      .exec()
-      .then(events => {
-          return res.status(200).json({
-              message: "Event deleted successfully",
-              data: events
-          })
-      })
-      .catch(err => {
-        console.log(err)
-          return res.status(500).json({ error: err })
-      })
-})
+    .exec()
+    .then((events) => {
+      return res.status(200).json({
+        message: "Event deleted successfully",
+        data: events,
+      });
+    })
+    .catch((err) => {
+      return res.status(500).json({ error: err });
+    });
+});
+
+// Save users token for FCM notifications
+router.post("/users/fcmtoken", async (req, res, next) => {
+  const fcmtoken = req.body.fcmtoken;
+
+  if (!fcmtoken)
+    return res.status(400).send({
+      message: "Token value is missing",
+    });
+
+  const tokenExist = await User.findOne({ fcmtoken });
+
+  if (tokenExist) {
+    return res.status(200).json({
+      message: "User fcm token already exist",
+    });
+  }
+
+  const user = new User({
+    _id: mongoose.Types.ObjectId(),
+    fcmtoken: fcmtoken,
+  });
+  user
+    .save()
+    .then((userToken) => {
+      res.status(201).json({
+        message: "User fcm token saved successfully",
+      });
+    })
+    .catch((err) => {
+      res.status(500).json(err);
+    });
+});
+
+// Send basic notification to all users
+router.post("/users/notifications", async (req, res, next) => {
+  const title = req.body.title;
+  const description = req.body.description;
+
+  if (!title)
+    return res.status(400).send({
+      message: "Title is missing",
+    });
+
+  if (!description)
+    return res.status(400).send({
+      message: "Title is missing",
+    });
+
+  // get users fcm tokens
+  const registrationres = await User.find({});
+  const registrationTokens = registrationres.map((item) => item.fcmtoken);
+  if(registrationTokens.length === 0) {
+    return res.status(200).send({
+      message: "No users tokens",
+    });
+  }
+
+  const message = {
+    notification: {
+      title: title,
+      body: description,
+    },
+    data: {
+      title: title,
+      body: description,
+    },
+    tokens: registrationTokens,
+  };
+
+  await admin
+    .messaging()
+    .sendMulticast(message)
+    .then((response) => {
+      res.status(200).send({
+        success: 1,
+        message: response.successCount + " messages were sent successfully",
+      });
+    })
+    .catch((err) => {
+      res.status(422).send({ success: 0 });
+    });
+});
 
 module.exports = router;
