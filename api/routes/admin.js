@@ -3,6 +3,7 @@ const router = express.Router();
 const mongoose = require("mongoose");
 
 const Event = require("../models/Event");
+const User = require("../models/User");
 
 // Get history tips
 router.get("/events/history", (req, res, next) => {
@@ -120,7 +121,7 @@ router.post("/events", (req, res, next) => {
     status: status,
     eventType,
     createdAt: new Date().toISOString(),
-    time
+    time,
   });
   event
     .save()
@@ -131,13 +132,12 @@ router.post("/events", (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log({ err });
       res.status(500).json(err);
     });
 });
 
 // Update event
-router.put('/events/:id', (req, res, next) => {
+router.put("/events/:id", (req, res, next) => {
   const id = req.params.id;
   const eventType = req.body.eventType;
   const home = req.body.home;
@@ -220,37 +220,69 @@ router.put('/events/:id', (req, res, next) => {
     status: status,
     eventType,
     time,
-    score
-  }
+    score,
+  };
 
   Event.updateOne({ _id: id }, event)
-  .exec()
-  .then((event) => {
-    return res.status(200).json({
-      message: "Event updated successfully",
-      data: event,
+    .exec()
+    .then((event) => {
+      return res.status(200).json({
+        message: "Event updated successfully",
+        data: event,
+      });
+    })
+    .catch((err) => {
+      return res.status(500).json({ error: err });
     });
-  })
-  .catch((err) => {
-    return res.status(500).json({ error: err });
-  });
 });
 
 // Delete an event
-router.delete('/events/:id', (req, res, next) => {
-  const id = req.params.id
+router.delete("/events/:id", (req, res, next) => {
+  const id = req.params.id;
   Event.deleteOne({ _id: id })
-      .exec()
-      .then(events => {
-          return res.status(200).json({
-              message: "Event deleted successfully",
-              data: events
-          })
-      })
-      .catch(err => {
-        console.log(err)
-          return res.status(500).json({ error: err })
-      })
-})
+    .exec()
+    .then((events) => {
+      return res.status(200).json({
+        message: "Event deleted successfully",
+        data: events,
+      });
+    })
+    .catch((err) => {
+      return res.status(500).json({ error: err });
+    });
+});
+
+// Save users token for FCM notifications
+router.post("/users/token", async (req, res, next) => {
+  const token = req.body.token;
+
+  if (!token)
+    return res.status(400).send({
+      message: "Token value is missing",
+    });
+
+  const tokenExist = await User.findOne({ token });
+
+  if(tokenExist) {
+    return res.status(200).json({
+      message: "User token already exist",
+    });
+  }
+
+  const user = new User({
+    _id: mongoose.Types.ObjectId(),
+    token: token,
+  });
+  user
+    .save()
+    .then((userToken) => {
+      res.status(201).json({
+        message: "User token saved successfully",
+      });
+    })
+    .catch((err) => {
+      res.status(500).json(err);
+    });
+});
 
 module.exports = router;

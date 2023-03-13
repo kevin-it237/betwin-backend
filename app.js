@@ -6,6 +6,7 @@ const session = require('express-session')
 const config = require('./config/database');
 const http = require('http');
 const path = require('path');
+const { initializeApp } = require("firebase-admin/app");
 
 // Routes
 const tips = require('./api/routes/tips');
@@ -35,6 +36,8 @@ app.use(session({
     resave: true,
     saveUninitialized: true
 }))
+
+initializeApp();
 
 const server = http.createServer(app);
 
