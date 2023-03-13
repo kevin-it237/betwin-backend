@@ -253,31 +253,31 @@ router.delete("/events/:id", (req, res, next) => {
 });
 
 // Save users token for FCM notifications
-router.post("/users/token", async (req, res, next) => {
-  const token = req.body.token;
+router.post("/users/fcmtoken", async (req, res, next) => {
+  const fcmtoken = req.body.fcmtoken;
 
-  if (!token)
+  if (!fcmtoken)
     return res.status(400).send({
       message: "Token value is missing",
     });
 
-  const tokenExist = await User.findOne({ token });
+  const tokenExist = await User.findOne({ fcmtoken });
 
   if(tokenExist) {
     return res.status(200).json({
-      message: "User token already exist",
+      message: "User fcm token already exist",
     });
   }
 
   const user = new User({
     _id: mongoose.Types.ObjectId(),
-    token: token,
+    fcmtoken: fcmtoken,
   });
   user
     .save()
     .then((userToken) => {
       res.status(201).json({
-        message: "User token saved successfully",
+        message: "User fcm token saved successfully",
       });
     })
     .catch((err) => {
