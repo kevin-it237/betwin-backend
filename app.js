@@ -7,6 +7,7 @@ const config = require('./config/database');
 const http = require('http');
 const path = require('path');
 const { initializeApp } = require("firebase-admin/app");
+const firebaseAdmin = require("firebase-admin");
 
 // Routes
 const tips = require('./api/routes/tips');
@@ -37,7 +38,9 @@ app.use(session({
     saveUninitialized: true
 }))
 
-initializeApp();
+initializeApp({
+    credential: firebaseAdmin.credential.applicationDefault()
+});
 
 const server = http.createServer(app);
 

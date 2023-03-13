@@ -2,3 +2,4 @@ node_modules
 uploads/images/*
 !uploads/images/.gitkeep
 betwin-app.pem
+service-account.json
