@@ -17,7 +17,7 @@ router.get("/events/history", (req, res, next) => {
 
   Event.find({ date: { $ne: date } })
     .sort({ date: -1 })
-    .limit(30)
+    .limit(50)
     .exec()
     .then((events) => {
       if (events.length === 0) {
