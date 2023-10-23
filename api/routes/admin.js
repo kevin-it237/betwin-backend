@@ -5,6 +5,7 @@ const admin = require("firebase-admin");
 
 const Event = require("../models/Event");
 const User = require("../models/User");
+const chunkArray = require("../utils/utils");
 
 // Get history tips
 router.get("/events/history", (req, res, next) => {
@@ -16,7 +17,7 @@ router.get("/events/history", (req, res, next) => {
 
   Event.find({ date: { $ne: date } })
     .sort({ date: -1 })
-    .limit(30)
+    .limit(50)
     .exec()
     .then((events) => {
       if (events.length === 0) {
@@ -304,35 +305,43 @@ router.post("/users/notifications", async (req, res, next) => {
   // get users fcm tokens
   const registrationres = await User.find({});
   const registrationTokens = registrationres.map((item) => item.fcmtoken);
-  if(registrationTokens.length === 0) {
+  if (registrationTokens.length === 0) {
     return res.status(200).send({
       message: "No users tokens",
     });
   }
 
-  const message = {
-    notification: {
-      title: title,
-      body: description,
-    },
-    data: {
-      title: title,
-      body: description,
-    },
-    tokens: registrationTokens,
-  };
+  // tokens list must not contain more than 500 items
+  const promises = [];
+  const chunks = chunkArray(registrationTokens, 500);
 
-  await admin
-    .messaging()
-    .sendMulticast(message)
+  chunks.forEach((chunk) => {
+    const message = {
+      notification: {
+        title: title,
+        body: description,
+      },
+      data: {
+        title: title,
+        body: description,
+      },
+      tokens: chunk,
+    };
+    promises.push(admin.messaging().sendMulticast(message));
+  });
+
+  await Promise.all(promises)
     .then((response) => {
       res.status(200).send({
         success: 1,
-        message: response.successCount + " messages were sent successfully",
+        data: response.map((result) => ({
+          successCount: result.successCount + " messages were sent successfully",
+          failureCount: result.failureCount + " messages failed",
+        })),
       });
     })
     .catch((err) => {
-      res.status(422).send({ success: 0 });
+      res.status(422).send({ success: 0, err });
     });
 });
 
