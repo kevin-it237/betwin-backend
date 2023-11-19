@@ -48,7 +48,7 @@ router.post("/events", (req, res, next) => {
   const status = req.body.status;
   const time = req.body.time;
 
-  if (!["normal", "combo", "coupon", "risk"].includes(eventType))
+  if (!["normal", "combo", "coupon", "risk", "vip"].includes(eventType))
     return res.status(403).send({
       message: "Event type should be 'normal' or 'combo' or 'coupon'",
     });
@@ -299,7 +299,7 @@ router.post("/users/notifications", async (req, res, next) => {
 
   if (!description)
     return res.status(400).send({
-      message: "Title is missing",
+      message: "Description is missing",
     });
 
   // get users fcm tokens

@@ -82,6 +82,33 @@ router.get("/risk", authJwt.verifyToken, (req, res, next) => {
     });
 });
 
+
+// Get vip tips
+router.get("/vip", authJwt.verifyToken, (req, res, next) => {
+  const date = req.query.date;
+  if (!date)
+    return res.status(403).json({
+      message: "Date is missing on query parameters",
+    });
+
+  Event.find({ eventType: "vip", date })
+    .exec()
+    .then((vipTips) => {
+      if (vipTips.length === 0) {
+        return res.status(404).json({
+          message: "VIP tips not Found",
+        });
+      }
+      return res.status(200).json({
+        message: "VIP tips fetched successfully",
+        data: vipTips,
+      });
+    })
+    .catch((err) => {
+      return res.status(500).json({ error: err });
+    });
+});
+
 // Get coupons tips
 router.get("/coupon", authJwt.verifyToken, (req, res, next) => {
   const date = req.query.date;
