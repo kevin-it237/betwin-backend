@@ -50,7 +50,7 @@ router.post("/events", (req, res, next) => {
 
   if (!["normal", "combo", "coupon", "risk", "vip"].includes(eventType))
     return res.status(403).send({
-      message: "Event type should be 'normal' or 'combo' or 'coupon'",
+      message: "Event type should be in ['normal', 'combo', 'coupon', 'risk', 'vip']",
     });
 
   if (!home || !home.name)
