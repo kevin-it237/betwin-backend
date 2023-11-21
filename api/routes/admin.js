@@ -153,9 +153,9 @@ router.put("/events/:id", (req, res, next) => {
   const time = req.body.time;
   const score = req.body.score;
 
-  if (!["normal", "combo", "coupon", "risk"].includes(eventType))
+  if (!["normal", "combo", "coupon", "risk", "vip"].includes(eventType))
     return res.status(403).send({
-      message: "Event type should be 'normal' or 'combo'",
+      message: 'Event type should be ["normal", "combo", "coupon", "risk", "vip"]',
     });
 
   if (!home || !home.name)
