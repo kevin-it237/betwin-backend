@@ -50,7 +50,8 @@ router.post("/events", (req, res, next) => {
 
   if (!["normal", "combo", "coupon", "risk", "vip"].includes(eventType))
     return res.status(403).send({
-      message: "Event type should be in ['normal', 'combo', 'coupon', 'risk', 'vip']",
+      message:
+        "Event type should be in ['normal', 'combo', 'coupon', 'risk', 'vip']",
     });
 
   if (!home || !home.name)
@@ -155,7 +156,8 @@ router.put("/events/:id", (req, res, next) => {
 
   if (!["normal", "combo", "coupon", "risk", "vip"].includes(eventType))
     return res.status(403).send({
-      message: 'Event type should be ["normal", "combo", "coupon", "risk", "vip"]',
+      message:
+        'Event type should be ["normal", "combo", "coupon", "risk", "vip"]',
     });
 
   if (!home || !home.name)
@@ -271,12 +273,11 @@ router.post("/users/fcmtoken", async (req, res, next) => {
     });
   }
 
-  const user = new User({
-    _id: mongoose.Types.ObjectId(),
-    fcmtoken: fcmtoken,
-  });
-  user
-    .save()
+  User.findOneAndUpdate(
+    { fcmtoken: fcmtoken },
+    { $set: { fcmtoken: fcmtoken } },
+    { upsert: true, new: true }
+  )
     .then((userToken) => {
       res.status(201).json({
         message: "User fcm token saved successfully",
@@ -326,8 +327,12 @@ router.post("/users/notifications", async (req, res, next) => {
         body: description,
       },
       tokens: chunk,
+      // Required for background/quit data-only messages on iOS
+      contentAvailable: true,
+      // Required for background/quit data-only messages on Android
+      priority: "high",
     };
-    promises.push(admin.messaging().sendMulticast(message));
+    promises.push(admin.messaging().sendEachForMulticast(message));
   });
 
   await Promise.all(promises)
@@ -335,7 +340,8 @@ router.post("/users/notifications", async (req, res, next) => {
       res.status(200).send({
         success: 1,
         data: response.map((result) => ({
-          successCount: result.successCount + " messages were sent successfully",
+          successCount:
+            result.successCount + " messages were sent successfully",
           failureCount: result.failureCount + " messages failed",
         })),
       });

@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "GOOGLE_APPLICATION_CREDENTIALS='/Users/abelkevin/Documents/DEV/projects/betwin-backend/service-account.json' node app.js",
-    "dev": "GOOGLE_APPLICATION_CREDENTIALS='/Users/abelkevin/Documents/DEV/projects/betwin-backend/service-account.json' nodemon app.js"
+    "dev": "GOOGLE_APPLICATION_CREDENTIALS='./service-account.json' nodemon app.js"
   },
   "keywords": [
     "betwin prediction"
