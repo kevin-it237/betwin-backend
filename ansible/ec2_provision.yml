@@ -1,0 +1,85 @@
+---
+- name: Deploy Node.js application with Nginx
+  hosts: ec2_instances
+  become: true
+  become_method: sudo
+  vars:
+    app_source_directory: "/home/ubuntu/actions-runner/app/news-boulevard-backend/news-boulevard-backend"  # Replace with your Node.js app directory
+    node_env: "production"
+    google_application_credentials: "/home/ubuntu/service-account.json"
+    NODE_MAJOR: "20"
+    ansible_distribution_release: "xenial" #trusty
+
+  tasks:
+    - name: Update the package cache
+      apt:
+        update_cache: yes
+
+    - name: Install prerequisites
+      apt:
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+        state: present
+
+    - name: Download and add Node.js GPG key
+      shell: curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/trusted.gpg.d/nodesource.gpg
+      args:
+        executable: /bin/bash
+
+    - name: Set Node.js repository
+      apt_repository:
+        repo: "deb [signed-by=/etc/apt/trusted.gpg.d/nodesource.gpg] https://deb.nodesource.com/node_{{ NODE_MAJOR }}.x nodistro main"
+        state: present
+
+    - name: Update APT repositories again
+      apt:
+        update_cache: yes
+
+    - name: Install Node.js
+      apt:
+        name: nodejs
+        state: present
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Start Nginx service
+      systemd:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Install PM2 globally
+      npm:
+        name: pm2
+        global: yes
+
+    - name: Set environment variables in /etc/environment
+      lineinfile:
+        path: /etc/environment
+        line: |
+          NODE_ENV="{{ node_env }}"
+          GOOGLE_APPLICATION_CREDENTIALS="{{ google_application_credentials }}"
+        state: present
+
+    - name: Configure Nginx
+      template:
+        src: nginx.conf.j2
+        dest: "/etc/nginx/nginx.conf"
+      notify:
+        - Restart Nginx
+
+  handlers:
+    - name: Restart Node.js application
+      systemd:
+        name: pm2-ecosystem
+        state: restarted
+
+    - name: Restart Nginx
+      systemd:
+        name: nginx
+        state: restarted
