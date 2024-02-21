@@ -86,6 +86,7 @@ app.use((error, req, res, next) => {
 })
 
 // Start the app
-server.listen(process.env.PORT || 5000, function() {
-    console.log("Server started")
+const port = process.env.PORT || 5000
+server.listen(port, function() {
+    console.log("Server started on: " + port)
 })

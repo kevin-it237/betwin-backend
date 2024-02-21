@@ -2,14 +2,24 @@ const express = require("express");
 const router = express.Router();
 const { authJwt } = require("../middlewares/index");
 const Event = require("../models/Event");
+const { redisClientInit } = require("../../config/redis");
+
+const REDIS_EXPIRATION = 180; // 3minutes
 
 // Get today tips
-router.get("/today", authJwt.verifyToken, (req, res, next) => {
+router.get("/today", authJwt.verifyToken, async (req, res, next) => {
   const date = req.query.date;
+  const skipCache = req.query.skipCache;
   if (!date)
     return res.status(403).json({
       message: "Date is missing on query paramettrs",
     });
+
+  const client = await redisClientInit();
+  const data = await client.get(req.originalUrl);
+  if (data !== null && !skipCache) {
+    return res.status(200).json(JSON.parse(data));
+  }
 
   Event.find({ eventType: "normal", date })
     .exec()
@@ -19,10 +29,16 @@ router.get("/today", authJwt.verifyToken, (req, res, next) => {
           message: "Today tips not Found",
         });
       }
-      return res.status(200).json({
+
+      const response = {
         message: "Today tips fetched successfully",
         data: todayTips,
-      });
+      };
+
+      // Store the fetched data in Redis with a 3-minute expiry
+      client.set(req.originalUrl, JSON.stringify(response), "EX", REDIS_EXPIRATION);
+
+      return res.status(200).json(response);
     })
     .catch((err) => {
       return res.status(500).json({ error: err });
@@ -30,12 +46,19 @@ router.get("/today", authJwt.verifyToken, (req, res, next) => {
 });
 
 // Get combo tips
-router.get("/combo", authJwt.verifyToken, (req, res, next) => {
+router.get("/combo", authJwt.verifyToken, async (req, res, next) => {
   const date = req.query.date;
+  const skipCache = req.query.skipCache;
   if (!date)
     return res.status(403).json({
       message: "Date is missing on query parameters",
     });
+
+  const client = await redisClientInit();
+  const data = await client.get(req.originalUrl);
+  if (data !== null && skipCache) {
+    return res.status(200).json(JSON.parse(data));
+  }
 
   Event.find({ eventType: "combo", date })
     .exec()
@@ -45,24 +68,36 @@ router.get("/combo", authJwt.verifyToken, (req, res, next) => {
           message: "Combo tips not Found",
         });
       }
-      return res.status(200).json({
+
+      const response = {
         message: "Combo tips fetched successfully",
         data: comboTips,
-      });
+      };
+
+      // Store the fetched data in Redis with a 3-minute expiry
+      client.set(req.originalUrl, JSON.stringify(response), "EX", REDIS_EXPIRATION);
+
+      return res.status(200).json(response);
     })
     .catch((err) => {
       return res.status(500).json({ error: err });
     });
 });
 
-
-// Get combo tips
-router.get("/risk", authJwt.verifyToken, (req, res, next) => {
+// Get risk tips
+router.get("/risk", authJwt.verifyToken, async (req, res, next) => {
   const date = req.query.date;
+  const skipCache = req.query.skipCache;
   if (!date)
     return res.status(403).json({
       message: "Date is missing on query parameters",
     });
+
+  const client = await redisClientInit();
+  const data = await client.get(req.originalUrl);
+  if (data !== null && skipCache) {
+    return res.status(200).json(JSON.parse(data));
+  }
 
   Event.find({ eventType: "risk", date })
     .exec()
@@ -72,24 +107,36 @@ router.get("/risk", authJwt.verifyToken, (req, res, next) => {
           message: "Risk tips not Found",
         });
       }
-      return res.status(200).json({
+
+      const response = {
         message: "Risk tips fetched successfully",
         data: riskTips,
-      });
+      };
+
+      // Store the fetched data in Redis with a 3-minute expiry
+      client.set(req.originalUrl, JSON.stringify(response), "EX", REDIS_EXPIRATION);
+
+      return res.status(200).json(response);
     })
     .catch((err) => {
       return res.status(500).json({ error: err });
     });
 });
 
-
 // Get vip tips
-router.get("/vip", authJwt.verifyToken, (req, res, next) => {
+router.get("/vip", authJwt.verifyToken, async (req, res, next) => {
   const date = req.query.date;
+  const skipCache = req.query.skipCache;
   if (!date)
     return res.status(403).json({
       message: "Date is missing on query parameters",
     });
+
+  const client = await redisClientInit();
+  const data = await client.get(req.originalUrl);
+  if (data !== null && skipCache) {
+    return res.status(200).json(JSON.parse(data));
+  }
 
   Event.find({ eventType: "vip", date })
     .exec()
@@ -99,10 +146,16 @@ router.get("/vip", authJwt.verifyToken, (req, res, next) => {
           message: "VIP tips not Found",
         });
       }
-      return res.status(200).json({
+
+      const response = {
         message: "VIP tips fetched successfully",
         data: vipTips,
-      });
+      };
+
+      // Store the fetched data in Redis with a 3-minute expiry
+      client.set(req.originalUrl, JSON.stringify(response), "EX", REDIS_EXPIRATION);
+
+      return res.status(200).json(response);
     })
     .catch((err) => {
       return res.status(500).json({ error: err });
