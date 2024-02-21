@@ -15,9 +15,7 @@ router.get("/events/history", (req, res, next) => {
       message: "Date is missing on query parameters",
     });
 
-  Event.find({ date: { $ne: date } })
-    .sort({ date: -1 })
-    .limit(50)
+  Event.find({ date: date })
     .exec()
     .then((events) => {
       if (events.length === 0) {
