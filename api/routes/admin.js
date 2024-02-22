@@ -116,7 +116,7 @@ router.post("/events", (req, res, next) => {
 
   if (!prediction || !prediction.name || !prediction.time || !predictionTypes.includes(prediction.name))
     return res.status(422).send({
-      message: "prediction data incompleted or missing",
+      message: "prediction data incompleted or missing. Accepted: " + JSON.stringify(predictionTypes),
     });
 
   if (!competition || !competition.name)
@@ -221,9 +221,9 @@ router.put("/events/:id", (req, res, next) => {
       message: "chance data incompleted or missing",
     });
 
-  if (!prediction || !prediction.name || !prediction.time)
+  if (!prediction || !prediction.name || !prediction.time || !predictionTypes.includes(prediction.name))
     return res.status(422).send({
-      message: "prediction data incompleted or missing",
+      message: "prediction data incompleted or missing. Accepted: " + JSON.stringify(predictionTypes),
     });
 
   if (!competition || !competition.name)
