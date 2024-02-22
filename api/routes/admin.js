@@ -3,6 +3,8 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const admin = require("firebase-admin");
 
+const predictionTypes = ["+1.5", "-1.5", "+2.5", "-2.5", "1", "2", "1x", "2x", "X", "12", "BTTS Yes", "BTTS No", "1/BTTS No", "1/BTTS Yes", , "2/BTTS No", "2/BTTS Yes", "+3.5", "-3.5", "+4.5", "-4.5", "1 Win", , "2 Win"]
+
 const Event = require("../models/Event");
 const User = require("../models/User");
 const chunkArray = require("../utils/utils");
@@ -33,8 +35,43 @@ router.get("/events/history", (req, res, next) => {
     });
 });
 
+// Get all pending events
+router.get("/events/pending", (req, res, next) => {
+  const date = req.query.date;
+  if (!date)
+    return res.status(403).json({
+      message: "Date is missing on query parameters",
+    });
+
+  Event.find({ date: date, status: "pending" })
+    .exec()
+    .then((events) => {
+      if (events.length === 0) {
+        return res.status(404).json({
+          message: "Combo tips not Found",
+        });
+      }
+      return res.status(200).json({
+        message: "Pending events fetched successfully",
+        data: events,
+      });
+    })
+    .catch((err) => {
+      return res.status(500).json({ error: err });
+    });
+});
+
+// Get all prediction types
+router.get("/prediction-types", (req, res, next) => {
+  return res.status(200).json({
+    message: "Prediction types fetched successfully",
+    data: predictionTypes,
+  });
+});
+
 // Event creation
 router.post("/events", (req, res, next) => {
+  const fixtureId = req.body.fixtureId;
   const eventType = req.body.eventType;
   const home = req.body.home;
   const away = req.body.away;
@@ -50,6 +87,11 @@ router.post("/events", (req, res, next) => {
     return res.status(403).send({
       message:
         "Event type should be in ['normal', 'combo', 'coupon', 'risk', 'vip']",
+    });
+
+  if (!fixtureId)
+    return res.status(422).send({
+      message: "fixtureId is required",
     });
 
   if (!home || !home.name)
@@ -72,7 +114,7 @@ router.post("/events", (req, res, next) => {
       message: "chance data incompleted or missing",
     });
 
-  if (!prediction || !prediction.name || !prediction.time)
+  if (!prediction || !prediction.name || !prediction.time || !predictionTypes.includes(prediction.name))
     return res.status(422).send({
       message: "prediction data incompleted or missing",
     });
@@ -99,6 +141,7 @@ router.post("/events", (req, res, next) => {
 
   const event = new Event({
     _id: mongoose.Types.ObjectId(),
+    fixtureId: fixtureId,
     home: {
       logo: home.logo,
       name: home.name,
