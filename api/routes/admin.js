@@ -3,7 +3,7 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const admin = require("firebase-admin");
 
-const predictionTypes = ["+1.5", "-1.5", "+2.5", "-2.5", "1", "2", "1x", "2x", "X", "12", "BTTS Yes", "BTTS No", "1/BTTS No", "1/BTTS Yes", , "2/BTTS No", "2/BTTS Yes", "+3.5", "-3.5", "+4.5", "-4.5", "1 Win", , "2 Win"]
+const predictionTypes = ["+1.5", "-1.5", "+2.5", "-2.5", "1", "2", "1x", "2x", "X", "12", "BTTS Yes", "BTTS No", "1/BTTS No", "1/BTTS Yes", "2/BTTS No", "2/BTTS Yes", "+3.5", "-3.5", "+4.5", "-4.5", "1 Win", "2 Win"]
 
 const Event = require("../models/Event");
 const User = require("../models/User");
