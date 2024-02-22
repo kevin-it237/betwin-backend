@@ -12,6 +12,7 @@ router.get("/today", authJwt.verifyToken, (req, res, next) => {
     });
 
   Event.find({ eventType: "normal", date })
+    .sort({ time: 1 })
     .exec()
     .then((todayTips) => {
       if (todayTips.length === 0) {
@@ -38,6 +39,7 @@ router.get("/combo", authJwt.verifyToken, (req, res, next) => {
     });
 
   Event.find({ eventType: "combo", date })
+  .sort({ time: 1 })
     .exec()
     .then((comboTips) => {
       if (comboTips.length === 0) {
@@ -65,6 +67,7 @@ router.get("/risk", authJwt.verifyToken, (req, res, next) => {
     });
 
   Event.find({ eventType: "risk", date })
+  .sort({ time: 1 })
     .exec()
     .then((riskTips) => {
       if (riskTips.length === 0) {
@@ -92,6 +95,7 @@ router.get("/vip", authJwt.verifyToken, (req, res, next) => {
     });
 
   Event.find({ eventType: "vip", date })
+  .sort({ time: 1 })
     .exec()
     .then((vipTips) => {
       if (vipTips.length === 0) {
