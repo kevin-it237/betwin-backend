@@ -7,6 +7,7 @@ const Team = mongoose.Schema({
 
 const EventSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
+    fixtureId: { type: String, required: true },
     home: Team,
     away: Team,
     cote: { type: Number, required: true }, // 2.3
