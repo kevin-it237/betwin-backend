@@ -1,10 +1,11 @@
+// @deprecated
 const express = require("express");
 const router = express.Router();
 const { authJwt } = require("../middlewares/index");
 const Event = require("../models/Event");
 
 // Get today tips
-router.get("/v1/today", authJwt.verifyToken, (req, res, next) => {
+router.get("/today", authJwt.verifyToken, (req, res, next) => {
   const date = req.query.date;
   if (!date)
     return res.status(403).json({
@@ -31,7 +32,7 @@ router.get("/v1/today", authJwt.verifyToken, (req, res, next) => {
 });
 
 // Get combo tips
-router.get("/v1/combo", authJwt.verifyToken, (req, res, next) => {
+router.get("/combo", authJwt.verifyToken, (req, res, next) => {
   const date = req.query.date;
   if (!date)
     return res.status(403).json({
@@ -59,7 +60,7 @@ router.get("/v1/combo", authJwt.verifyToken, (req, res, next) => {
 
 
 // Get combo tips
-router.get("/v1/risk", authJwt.verifyToken, (req, res, next) => {
+router.get("/risk", authJwt.verifyToken, (req, res, next) => {
   const date = req.query.date;
   if (!date)
     return res.status(403).json({
@@ -87,7 +88,7 @@ router.get("/v1/risk", authJwt.verifyToken, (req, res, next) => {
 
 
 // Get vip tips
-router.get("/v1/vip", authJwt.verifyToken, (req, res, next) => {
+router.get("/vip", authJwt.verifyToken, (req, res, next) => {
   const date = req.query.date;
   if (!date)
     return res.status(403).json({
@@ -114,7 +115,7 @@ router.get("/v1/vip", authJwt.verifyToken, (req, res, next) => {
 });
 
 // Get coupons tips
-router.get("/v1/coupon", authJwt.verifyToken, (req, res, next) => {
+router.get("/coupon", authJwt.verifyToken, (req, res, next) => {
   const date = req.query.date;
   if (!date)
     return res.status(403).json({
@@ -140,7 +141,7 @@ router.get("/v1/coupon", authJwt.verifyToken, (req, res, next) => {
 });
 
 // Get history tips
-router.get("/v1/history", authJwt.verifyToken, (req, res, next) => {
+router.get("/history", authJwt.verifyToken, (req, res, next) => {
   const date = req.query.date;
   if (!date)
     return res.status(403).json({
