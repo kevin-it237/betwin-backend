@@ -11,7 +11,6 @@ const firebaseAdmin = require("firebase-admin");
 
 // Routes
 const tips = require('./api/routes/tips');
-const tipsOldApi = require('./api/routes/tips.old'); // to remove later
 const admin = require('./api/routes/admin');
 const emailsRoutes = require('./api/routes/emails');
 const auth = require('./api/routes/auth');
@@ -62,7 +61,6 @@ app.use((req, res, next) => {
 
 /* App Routes */
 app.use('/api/auth', auth);
-app.use('/api/tips', tipsOldApi); // to remove
 app.use('/api/tips', tips);
 app.use('/api/admin', admin);
 app.use('/api/coupons', coupons);
